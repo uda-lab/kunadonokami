@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kunadonokami/reduced-security-summary.schema.json",
+  "title": "Reduced Security Summary",
+  "type": "object",
+  "required": ["snapshot", "ssh", "findings"],
+  "properties": {
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "host": { "type": "string" },
+        "date_utc": { "type": "string" },
+        "time_range": { "type": "string" }
+      }
+    },
+    "ssh": {
+      "type": "object",
+      "properties": {
+        "accepted_login_count": { "type": "integer" },
+        "failed_login_count": { "type": "integer" },
+        "invalid_user_count": { "type": "integer" },
+        "preauth_noise_count": { "type": "integer" },
+        "unique_source_ip_count": { "type": "integer" },
+        "top_usernames": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "top_source_ips": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "fail2ban": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "active_jails": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sshd_banned_count": { "type": "integer" }
+      }
+    },
+    "listening_services": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "title"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["info", "low", "medium", "high", "critical"]
+          },
+          "title": { "type": "string" },
+          "evidence": { "type": "string" },
+          "recommendation": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

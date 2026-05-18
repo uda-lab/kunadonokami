@@ -62,6 +62,7 @@ A snapshot directory containing some or all of:
 8. Review SSH hardening:
    - `PermitRootLogin no`,
    - `PasswordAuthentication no`,
+   - `KbdInteractiveAuthentication no`,
    - `PubkeyAuthentication yes`,
    - `AllowUsers` if feasible,
    - `MaxAuthTries`,

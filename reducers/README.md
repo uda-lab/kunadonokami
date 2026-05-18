@@ -15,7 +15,9 @@ Reducers may:
 - extract accepted logins,
 - summarise fail2ban state,
 - parse listening services,
-- flag weak SSH configuration.
+- flag weak SSH configuration,
+- de-duplicate events across `journal-ssh.txt` and `journal-sshd.txt` (both
+  units may exist on the same host and will produce overlapping log lines).
 
 Reducers should not:
 

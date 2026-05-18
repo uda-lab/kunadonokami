@@ -1,30 +1,54 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-OUT="${1:-security-snapshot-$(hostname)-$(date -u +%Y%m%dT%H%M%SZ)}"
+INCLUDE_RAW_AUTH_LOG=0
+POSITIONAL=()
+for arg in "$@"; do
+  case "$arg" in
+    --include-raw-auth-log) INCLUDE_RAW_AUTH_LOG=1 ;;
+    *) POSITIONAL+=("$arg") ;;
+  esac
+done
+
+OUT="${POSITIONAL[0]:-security-snapshot-$(hostname)-$(date -u +%Y%m%dT%H%M%SZ)}"
 mkdir -p "$OUT"
 chmod 700 "$OUT"
+
+STATUS_FILE="$OUT/collection-status.txt"
+{
+  echo "# collection-status"
+  echo "# date_utc: $(date -u --iso-8601=seconds)"
+} > "$STATUS_FILE"
+
+record_status() {
+  local name="$1" exit_code="$2"
+  echo "${exit_code} ${name}" >> "$STATUS_FILE"
+}
 
 write_cmd() {
   local name="$1"
   shift
+  local rc=0
   {
     echo "# command: $*"
     echo "# date_utc: $(date -u --iso-8601=seconds)"
     echo
     "$@"
-  } > "$OUT/$name" 2>&1 || true
+  } > "$OUT/$name" 2>&1 || rc=$?
+  record_status "$name" "$rc"
 }
 
 write_sudo_cmd() {
   local name="$1"
   shift
+  local rc=0
   {
     echo "# command: sudo $*"
     echo "# date_utc: $(date -u --iso-8601=seconds)"
     echo
     sudo "$@"
-  } > "$OUT/$name" 2>&1 || true
+  } > "$OUT/$name" 2>&1 || rc=$?
+  record_status "$name" "$rc"
 }
 
 {
@@ -36,18 +60,28 @@ write_sudo_cmd() {
 } > "$OUT/meta.txt"
 
 # SSH logs. Different distributions use either ssh or sshd as the unit name.
+# Note: both units may be present on the same system and will contain duplicate
+# events; reducers should de-duplicate by timestamp and message before analysis.
 write_sudo_cmd journal-ssh.txt journalctl -u ssh --since "7 days ago" --no-pager
 write_sudo_cmd journal-sshd.txt journalctl -u sshd --since "7 days ago" --no-pager
 
-# Debian/Ubuntu auth log, if present.
-if sudo test -f /var/log/auth.log; then
-  sudo cp /var/log/auth.log "$OUT/auth.log.txt" 2>/dev/null || true
+# Debian/Ubuntu auth log: opt-in only (--include-raw-auth-log) because copying
+# the whole file can be broad. By default collect a bounded recent slice instead.
+if [ "$INCLUDE_RAW_AUTH_LOG" -eq 1 ]; then
+  _rc=0
+  sudo cp /var/log/auth.log "$OUT/auth.log.txt" 2>/dev/null || _rc=$?
+  record_status "auth.log.txt" "$_rc"
+else
+  write_sudo_cmd auth.log.txt journalctl --identifier sshd --identifier sudo \
+    --since "7 days ago" --no-pager
 fi
 
 # fail2ban state.
 write_sudo_cmd fail2ban-status.txt fail2ban-client status
 write_sudo_cmd fail2ban-sshd.txt fail2ban-client status sshd
-sudo sh -c 'zgrep -h "Ban " /var/log/fail2ban.log* 2>/dev/null' > "$OUT/fail2ban-log.txt" 2>&1 || true
+_rc=0
+sudo sh -c 'zgrep -h "Ban " /var/log/fail2ban.log* 2>/dev/null' > "$OUT/fail2ban-log.txt" 2>&1 || _rc=$?
+record_status "fail2ban-log.txt" "$_rc"
 
 # Listening services.
 write_sudo_cmd ss-listening.txt ss -tulpn
@@ -62,9 +96,12 @@ write_cmd systemctl-failed.txt systemctl --failed
 write_cmd systemctl-running.txt systemctl list-units --type=service --state=running --no-pager
 
 # SSH configuration.
-sudo cp /etc/ssh/sshd_config "$OUT/sshd_config.txt" 2>/dev/null || true
-sudo sh -c 'ls -la /etc/ssh/sshd_config.d 2>/dev/null' > "$OUT/sshd_config_d_ls.txt" 2>&1 || true
-sudo sh -c 'cat /etc/ssh/sshd_config.d/*.conf 2>/dev/null' > "$OUT/sshd_config_d.txt" 2>&1 || true
+_rc=0; sudo cp /etc/ssh/sshd_config "$OUT/sshd_config.txt" 2>/dev/null || _rc=$?
+record_status "sshd_config.txt" "$_rc"
+_rc=0; sudo sh -c 'ls -la /etc/ssh/sshd_config.d 2>/dev/null' > "$OUT/sshd_config_d_ls.txt" 2>&1 || _rc=$?
+record_status "sshd_config_d_ls.txt" "$_rc"
+_rc=0; sudo sh -c 'cat /etc/ssh/sshd_config.d/*.conf 2>/dev/null' > "$OUT/sshd_config_d.txt" 2>&1 || _rc=$?
+record_status "sshd_config_d.txt" "$_rc"
 
 # Basic login history.
 write_cmd last.txt bash -lc 'last -a | head -200'

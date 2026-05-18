@@ -1,0 +1,13 @@
+# Real snapshot archives contain hostnames, usernames, IP addresses,
+# listening services, firewall topology, and operational baseline.
+# Never commit real snapshots to a public or shared repository.
+security-snapshot-*/
+security-snapshot-*.tar.gz
+
+# Local policy overrides should not be committed to the public repository.
+*.local
+*.tmp
+
+# Editor and OS noise.
+.DS_Store
+*~

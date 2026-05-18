@@ -61,6 +61,13 @@ Then copy the generated `.tar.gz` snapshot to a local or sandboxed analysis envi
 
 The AI agent should only receive the extracted snapshot directory or reduced JSON artifacts. It should not receive SSH keys, passwords, sudo access, or unrestricted shell access to the VPS.
 
+> **Warning: snapshots are sensitive.**
+> Real snapshot archives can contain hostnames, usernames, IP addresses, listening
+> services, firewall topology, and your operational baseline. Do not commit real
+> snapshots to a public repository and do not paste them into public AI sessions
+> without sanitisation. The `.gitignore` in this repository excludes
+> `security-snapshot-*/` and `*.tar.gz` by default.
+
 ## Design principle
 
 The LLM is not the detector of first resort.

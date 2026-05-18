@@ -1,0 +1,25 @@
+# Example policy only. Do not put real local infrastructure assumptions in the public repository.
+
+ssh:
+  expected_public_port: 22
+  permit_password_authentication: false
+  permit_root_login: false
+  allowed_interactive_users: []
+
+noise_handling:
+  collapse_preauth: true
+  max_raw_lines_for_ai_review: 200
+  summarize_repeated_ips: true
+
+review:
+  require_human_approval_for_all_actions: true
+  allow_autonomous_remediation: false
+  allow_vps_shell_access_for_agent: false
+  allow_sudo_for_agent: false
+
+severity:
+  accepted_login_from_unknown_ip: high
+  password_authentication_enabled: high
+  root_login_enabled: high
+  unknown_public_listening_service: medium
+  high_volume_preauth_noise_only: info

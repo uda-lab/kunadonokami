@@ -1,0 +1,6 @@
+host=example-vps
+server_profile=sanitized-example
+date_utc=2026-05-18T00:00:00+00:00
+kernel=Linux example-vps 6.x.x x86_64 GNU/Linux
+collector_user=uid=1000(owner) gid=1000(owner) groups=1000(owner),27(sudo)
+snapshot_version=0

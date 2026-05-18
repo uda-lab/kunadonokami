@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kunadonokami/normalized-ssh-event.schema.json",
+  "title": "Normalized SSH Event",
+  "type": "object",
+  "required": ["timestamp", "event_type", "source"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "description": "Original or normalized timestamp, preferably ISO-8601 if available."
+    },
+    "host": {
+      "type": "string"
+    },
+    "service": {
+      "type": "string",
+      "enum": ["ssh", "sshd", "unknown"]
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "accepted_login",
+        "failed_password",
+        "invalid_user",
+        "disconnect_preauth",
+        "auth_failure",
+        "session_opened",
+        "session_closed",
+        "other"
+      ]
+    },
+    "username": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "ip": { "type": "string" },
+        "port": { "type": "integer" }
+      },
+      "additionalProperties": true
+    },
+    "auth_method": {
+      "type": "string"
+    },
+    "raw_excerpt": {
+      "type": "string",
+      "description": "Short raw line excerpt for auditability."
+    },
+    "severity_hint": {
+      "type": "string",
+      "enum": ["noise", "low", "medium", "high", "critical"]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

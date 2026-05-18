@@ -1,0 +1,40 @@
+{
+  "snapshot": {
+    "host": "example-vps",
+    "date_utc": "2026-05-18T00:00:00Z",
+    "time_range": "last 7 days"
+  },
+  "ssh": {
+    "accepted_login_count": 3,
+    "failed_login_count": 12842,
+    "invalid_user_count": 11704,
+    "preauth_noise_count": 10931,
+    "unique_source_ip_count": 843,
+    "top_usernames": [
+      { "username": "root", "count": 5301 },
+      { "username": "admin", "count": 920 },
+      { "username": "ubuntu", "count": 611 }
+    ],
+    "top_source_ips": [
+      { "ip": "203.0.113.10", "count": 182 },
+      { "ip": "198.51.100.22", "count": 140 }
+    ]
+  },
+  "fail2ban": {
+    "enabled": true,
+    "active_jails": ["sshd"],
+    "sshd_banned_count": 92
+  },
+  "listening_services": [
+    { "proto": "tcp", "local": "0.0.0.0:22", "process": "sshd" },
+    { "proto": "tcp", "local": "0.0.0.0:443", "process": "nginx" }
+  ],
+  "findings": [
+    {
+      "severity": "info",
+      "title": "High-volume SSH brute-force noise",
+      "evidence": "Large number of failed and invalid-user attempts; no accepted login correlated with the top attacking IPs in this sanitized example.",
+      "recommendation": "Continue fail2ban monitoring; consider provider firewall restrictions if feasible."
+    }
+  ]
+}

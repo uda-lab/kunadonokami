@@ -66,7 +66,7 @@ The AI agent should only receive the extracted snapshot directory or reduced JSO
 > services, firewall topology, and your operational baseline. Do not commit real
 > snapshots to a public repository and do not paste them into public AI sessions
 > without sanitisation. The `.gitignore` in this repository excludes
-> `security-snapshot-*/` and `*.tar.gz` by default.
+> `security-snapshot-*/` and `security-snapshot-*.tar.gz` by default.
 
 ## Design principle
 

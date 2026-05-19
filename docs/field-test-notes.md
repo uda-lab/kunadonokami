@@ -31,10 +31,10 @@ Working from raw artifacts alone (no reducer, no JSON summary):
 
 ## What the current reviewer workflow could not reliably determine without a reducer
 
-- The shape and volume of SSH events at a glance. The SSH journal artifact is
-  on the order of two megabytes / ~15k lines for a 7-day window on an
-  internet-exposed sshd; a reviewer cannot consume it raw and must rely on
-  greps it improvises per-snapshot. This is the reducer's job.
+- The shape and volume of SSH events at a glance. The SSH journal artifact on
+  an internet-exposed sshd is large enough that a reviewer cannot consume it
+  raw and must rely on greps it improvises per-snapshot. Producing those
+  counts deterministically is the reducer's job.
 - The effective SSH configuration when hardening lives in drop-ins. Reading
   `sshd_config.txt` alone is misleading because the main file is mostly
   commented-out defaults while the actual policy lives in
@@ -130,10 +130,10 @@ Working from raw artifacts alone (no reducer, no JSON summary):
    degenerates into hygiene checklists or is omitted. The skill should
    explicitly permit "no manual checks needed" as a valid result.
 
-6. **No size budget for raw artifacts.** The SSH journal artifact is large
-   enough that a non-reducer-assisted review must improvise its own
-   filtering. The skill should either point reviewers at a reducer or set
-   expectations that a partial review is acceptable for the raw journal.
+6. **No size budget for raw artifacts.** A non-reducer-assisted review of
+   the SSH journal must improvise its own filtering. The skill should either
+   point reviewers at a reducer or set expectations that a partial review is
+   acceptable for the raw journal.
 
 ### Schema gaps
 

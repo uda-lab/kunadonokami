@@ -12,7 +12,15 @@ Some information requires `sudo` to collect correctly: journal logs, `fail2ban` 
 
 However, analysis does not require `sudo`.
 
-The owner should run the collection script manually, inspect what is collected, and pass only the resulting snapshot or reduced artifact to an AI reviewer.
+The owner should run the collection script manually, inspect what is collected,
+and pass only the resulting snapshot or reduced artifact to an AI reviewer. The
+repository can remain local: the owner may copy a reviewed collector script to
+the VPS over SSH, run it there, retrieve the snapshot, and remove the temporary
+copy.
+
+Avoid treating `curl | sh` as the normal privileged collection path. It is easy
+to operate but expands the supply-chain and network trust boundary at the moment
+of execution.
 
 ## Deterministic before probabilistic
 

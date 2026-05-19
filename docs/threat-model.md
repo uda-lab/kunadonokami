@@ -46,11 +46,22 @@ Snapshots may contain sensitive information:
 
 Snapshots should be treated as sensitive artifacts.
 
+### 4. Collector supply-chain risk
+
+Examples:
+
+- piping remotely fetched code directly into a privileged shell,
+- running an unreviewed collector revision on the VPS,
+- leaving mutable tool checkouts or temporary scripts on the VPS longer than needed.
+
 ## Security boundaries
 
 The owner may run privileged collection.
 
 The AI reviewer may read only copied snapshot artifacts.
+
+The repository and analysis workflow may stay local. The VPS only needs a
+reviewed collector copy long enough to create the snapshot.
 
 The AI reviewer must not:
 

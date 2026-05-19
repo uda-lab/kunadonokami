@@ -2,21 +2,26 @@
 
 ## Stage 1: Owner-side collection
 
-Run the collector on the VPS:
+The preferred model is local control with transient VPS execution. From a local
+checkout, the owner copies the collector to the VPS, runs it there, then removes
+the temporary copy:
 
 ```bash
-bash scripts/collect-vps-security-snapshot.sh
+scripts/run-vps-collection.sh vps
 ```
 
 This stage may use `sudo`.
 
-The output is a timestamped snapshot directory and a `.tar.gz` archive.
+The output is a snapshot directory and a `.tar.gz` archive. A full repository
+checkout on the VPS is optional, not the default assumption.
 
 ## Stage 2: Transfer
 
 Copy the archive to a local machine or isolated analysis environment.
 
 Do not give the AI reviewer SSH access to the VPS.
+Do not make remote `curl | sh` execution the standard path for privileged
+collection; prefer a reviewed local copy or pinned release artifact.
 
 ## Stage 3: Deterministic reduction
 

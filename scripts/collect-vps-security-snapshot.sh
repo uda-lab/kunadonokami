@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
 
 usage() {
   echo "usage: $0 [--include-raw-auth-log] [output-dir]" >&2
@@ -176,4 +177,5 @@ OUT_PARENT="$(dirname "$OUT")"
 OUT_BASE="$(basename "$OUT")"
 ARCHIVE="${OUT}.tar.gz"
 tar -czf "$ARCHIVE" -C "$OUT_PARENT" "$OUT_BASE"
+chmod 600 "$ARCHIVE"
 echo "Wrote $ARCHIVE"

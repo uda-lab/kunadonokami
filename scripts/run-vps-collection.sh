@@ -58,6 +58,20 @@ INCLUDE_RAW_AUTH_LOG=0
 REMOTE_DIR=""
 LOCAL_DIR="."
 SSH_TARGET=""
+REMOTE_CREATED=0
+CLEANUP_DONE=0
+
+cleanup_remote() {
+  local rc=$?
+  if [[ "$REMOTE_CREATED" -eq 1 && "$CLEANUP_DONE" -eq 0 ]]; then
+    CLEANUP_DONE=1
+    echo "Removing remote temporary files" >&2
+    ssh "$SSH_TARGET" "rm -f -- $REMOTE_COLLECTOR_Q $REMOTE_ARCHIVE_Q && rm -rf -- $REMOTE_DIR_Q" >&2 || {
+      echo "warning: failed to remove remote temporary files from $SSH_TARGET" >&2
+    }
+  fi
+  exit "$rc"
+}
 
 while (($#)); do
   case "$1" in
@@ -120,9 +134,11 @@ COLLECT_ARGS+=("$REMOTE_DIR")
 REMOTE_COLLECTOR_Q="$(shell_quote "$REMOTE_COLLECTOR")"
 REMOTE_DIR_Q="$(shell_quote "$REMOTE_DIR")"
 REMOTE_ARCHIVE_Q="$(shell_quote "$REMOTE_ARCHIVE")"
+trap cleanup_remote EXIT INT TERM
 
 echo "Creating remote snapshot directory $SSH_TARGET:$REMOTE_DIR" >&2
 ssh "$SSH_TARGET" "umask 077 && mkdir $REMOTE_DIR_Q"
+REMOTE_CREATED=1
 
 echo "Copying collector to $SSH_TARGET:$REMOTE_COLLECTOR" >&2
 scp "$COLLECTOR" "$SSH_TARGET:$REMOTE_COLLECTOR"
@@ -132,8 +148,5 @@ ssh -t "$SSH_TARGET" "bash $REMOTE_COLLECTOR_Q $(printf "%q " "${COLLECT_ARGS[@]
 
 echo "Retrieving $SSH_TARGET:$REMOTE_ARCHIVE" >&2
 scp "$SSH_TARGET:$REMOTE_ARCHIVE" "$LOCAL_DIR/"
-
-echo "Removing remote temporary files" >&2
-ssh "$SSH_TARGET" "rm -f -- $REMOTE_COLLECTOR_Q $REMOTE_ARCHIVE_Q && rm -rf -- $REMOTE_DIR_Q"
 
 echo "Wrote $LOCAL_DIR/$(basename "$REMOTE_ARCHIVE")"

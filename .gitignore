@@ -13,3 +13,6 @@ kunadonokami-snapshot-*.tar.gz
 # Editor and OS noise.
 .DS_Store
 *~
+
+# Coding agents
+AGENTS.md

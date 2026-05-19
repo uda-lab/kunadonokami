@@ -144,7 +144,7 @@ echo "Copying collector to $SSH_TARGET:$REMOTE_COLLECTOR" >&2
 scp "$COLLECTOR" "$SSH_TARGET:$REMOTE_COLLECTOR"
 
 echo "Running collector on $SSH_TARGET" >&2
-ssh -t "$SSH_TARGET" "bash $REMOTE_COLLECTOR_Q $(printf "%q " "${COLLECT_ARGS[@]}")"
+ssh -tt "$SSH_TARGET" "bash $REMOTE_COLLECTOR_Q $(printf "%q " "${COLLECT_ARGS[@]}")"
 
 echo "Retrieving $SSH_TARGET:$REMOTE_ARCHIVE" >&2
 scp "$SSH_TARGET:$REMOTE_ARCHIVE" "$LOCAL_DIR/"

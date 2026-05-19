@@ -3,6 +3,8 @@
 # Never commit real snapshots to a public or shared repository.
 security-snapshot-*/
 security-snapshot-*.tar.gz
+kunadonokami-snapshot-*/
+kunadonokami-snapshot-*.tar.gz
 
 # Local policy overrides should not be committed to the public repository.
 *.local

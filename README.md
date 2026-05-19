@@ -51,13 +51,17 @@ Initial target:
 
 ## Safe workflow
 
-On the VPS:
+From a local checkout, the owner can copy the collector to the VPS, run it
+there with `sudo` as needed, then copy the snapshot back:
 
 ```bash
-bash scripts/collect-vps-security-snapshot.sh
+scripts/run-vps-collection.sh vps
 ```
 
-Then copy the generated `.tar.gz` snapshot to a local or sandboxed analysis environment.
+This keeps the repository and review workflow local while allowing privileged
+collection on the VPS. A full repository checkout on the VPS is not required.
+Avoid piping remotely fetched code directly into a shell on the VPS; use a
+reviewed local copy or another pinned, verifiable release artifact instead.
 
 The AI agent should only receive the extracted snapshot directory or reduced JSON artifacts. It should not receive SSH keys, passwords, sudo access, or unrestricted shell access to the VPS.
 

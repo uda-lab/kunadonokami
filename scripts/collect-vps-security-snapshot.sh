@@ -109,6 +109,13 @@ write_sudo_cmd() {
   record_status "$name" "$rc"
 }
 
+write_sudo_file() {
+  local name="$1" path="$2"
+  local rc=0
+  sudo cat "$path" >"$OUT/$name" 2>&1 || rc=$?
+  record_status "$name" "$rc"
+}
+
 {
   echo "host=$(hostname)"
   echo "date_utc=$(utc_now)"
@@ -126,9 +133,7 @@ write_sudo_cmd journal-sshd.txt journalctl -u sshd --since "7 days ago" --no-pag
 # Debian/Ubuntu auth log: opt-in only (--include-raw-auth-log) because copying
 # the whole file can be broad. By default collect a bounded recent slice instead.
 if [ "$INCLUDE_RAW_AUTH_LOG" -eq 1 ]; then
-  _rc=0
-  sudo cp /var/log/auth.log "$OUT/auth.log.txt" 2>/dev/null || _rc=$?
-  record_status "auth.log.txt" "$_rc"
+  write_sudo_file auth.log.txt /var/log/auth.log
 else
   write_sudo_cmd auth.log.txt journalctl --identifier sshd --identifier sudo \
     --since "7 days ago" --no-pager
@@ -154,8 +159,7 @@ write_cmd systemctl-failed.txt systemctl --failed
 write_cmd systemctl-running.txt systemctl list-units --type=service --state=running --no-pager
 
 # SSH configuration.
-_rc=0; sudo cp /etc/ssh/sshd_config "$OUT/sshd_config.txt" 2>/dev/null || _rc=$?
-record_status "sshd_config.txt" "$_rc"
+write_sudo_file sshd_config.txt /etc/ssh/sshd_config
 _rc=0; sudo sh -c 'ls -la /etc/ssh/sshd_config.d 2>/dev/null' >"$OUT/sshd_config_d_ls.txt" 2>&1 || _rc=$?
 record_status "sshd_config_d_ls.txt" "$_rc"
 _rc=0; sudo sh -c 'cat /etc/ssh/sshd_config.d/*.conf 2>/dev/null' >"$OUT/sshd_config_d.txt" 2>&1 || _rc=$?

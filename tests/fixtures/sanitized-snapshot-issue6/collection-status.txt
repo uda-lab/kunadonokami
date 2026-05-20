@@ -1,0 +1,25 @@
+# collection-status
+# date_utc: 2026-05-20T00:00:00Z
+0 meta.txt
+0 journal-ssh.txt
+0 journal-sshd.txt
+0 auth.log.txt
+0 fail2ban-status.txt
+0 fail2ban-sshd.txt
+0 fail2ban-log.txt
+0 ss-listening.txt
+0 nft-list-ruleset.txt
+127 ufw-status.txt
+0 iptables-save.txt
+0 systemctl-failed.txt
+0 systemctl-running.txt
+0 sshd_config.txt
+0 sshd_config_d_ls.txt
+0 sshd_config_d.txt
+127 last.txt
+0 lastb.txt
+0 wtmpdb-last.txt
+0 lslogins-failed.txt
+0 passwd-users.txt
+0 cron-ls.txt
+0 systemd-etc-ls.txt

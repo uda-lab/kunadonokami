@@ -1,0 +1,5 @@
+# OpenSSH server configuration
+Include /etc/ssh/sshd_config.d/*.conf
+# PasswordAuthentication yes
+PubkeyAuthentication yes
+X11Forwarding no

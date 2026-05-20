@@ -2,39 +2,152 @@
   "snapshot": {
     "host": "example-vps",
     "date_utc": "2026-05-18T00:00:00Z",
-    "time_range": "last 7 days"
+    "time_range": "last 7 days",
+    "snapshot_version": "1"
+  },
+  "collection_health": {
+    "artifacts": [
+      { "name": "collection-status.txt", "required": true, "present": true, "exit_code": 0, "classification": "ok", "reason": "artifact collected successfully" },
+      { "name": "journal-ssh.txt", "required": true, "present": true, "exit_code": 0, "classification": "empty_expected", "reason": "artifact is empty by design on this host" },
+      { "name": "journal-sshd.txt", "required": true, "present": true, "exit_code": 0, "classification": "ok", "reason": "artifact collected successfully" },
+      { "name": "ufw-status.txt", "required": false, "present": true, "exit_code": 127, "classification": "missing_optional_tool", "reason": "expected optional tool missing", "missing_tool": "ufw" },
+      { "name": "last.txt", "required": false, "present": true, "exit_code": 127, "classification": "missing_optional_tool", "reason": "expected optional tool missing", "missing_tool": "last" },
+      { "name": "lastb.txt", "required": false, "present": true, "exit_code": 0, "classification": "missing_optional_tool", "reason": "expected optional tool missing", "wrapper_exit_mismatch": true, "missing_tool": "unknown" },
+      { "name": "wtmpdb-last.txt", "required": false, "present": true, "exit_code": 0, "classification": "ok", "reason": "artifact collected successfully" },
+      { "name": "lslogins-failed.txt", "required": false, "present": true, "exit_code": 0, "classification": "ok", "reason": "artifact collected successfully" }
+    ],
+    "classification_counts": {
+      "ok": 4,
+      "empty_expected": 1,
+      "missing_optional_tool": 3
+    }
+  },
+  "ssh_summary": {
+    "source_artifacts_used": ["journal-sshd.txt", "auth.log.txt"],
+    "deduplicated_event_count": 6,
+    "accepted_login_count": 1,
+    "accepted_login_methods": [
+      { "method": "publickey", "count": 1 }
+    ],
+    "accepted_login_key_types": [
+      { "key_type": "ed25519", "count": 1 }
+    ],
+    "accepted_logins": [
+      {
+        "timestamp": "2026-05-18T00:00:01Z",
+        "identifier": "sshd",
+        "method": "publickey",
+        "username": "deployer",
+        "source": "redacted-source-1",
+        "port": "50100",
+        "key_type": "ed25519"
+      }
+    ],
+    "failed_auth_count": 2,
+    "invalid_user_count": 2,
+    "root_auth_attempt_count": 2,
+    "preauth_disconnect_count": 1,
+    "protocol_error_count": 1,
+    "unique_source_address_count": 4,
+    "top_source_addresses": [
+      { "source": "redacted-source-1", "count": 1 },
+      { "source": "redacted-source-2", "count": 1 }
+    ],
+    "top_targeted_usernames": [
+      { "username": "admin", "count": 1 },
+      { "username": "oracle", "count": 1 },
+      { "username": "root", "count": 1 }
+    ],
+    "accepted_login_sources_overlapping_fail2ban_bans": {
+      "count": 1,
+      "sources": ["redacted-source-1"]
+    }
   },
   "ssh": {
-    "accepted_login_count": 3,
-    "failed_login_count": 12842,
-    "invalid_user_count": 11704,
-    "preauth_noise_count": 10931,
-    "unique_source_ip_count": 843,
+    "accepted_login_count": 1,
+    "failed_login_count": 2,
+    "invalid_user_count": 2,
+    "preauth_noise_count": 1,
+    "unique_source_ip_count": 4,
     "top_usernames": [
-      { "username": "root", "count": 5301 },
-      { "username": "admin", "count": 920 },
-      { "username": "ubuntu", "count": 611 }
+      { "username": "admin", "count": 1 },
+      { "username": "oracle", "count": 1 },
+      { "username": "root", "count": 1 }
     ],
     "top_source_ips": [
-      { "ip": "203.0.113.10", "count": 182 },
-      { "ip": "198.51.100.22", "count": 140 }
+      { "source": "redacted-source-1", "count": 1 },
+      { "source": "redacted-source-2", "count": 1 }
     ]
   },
   "fail2ban": {
     "enabled": true,
     "active_jails": ["sshd"],
-    "sshd_banned_count": 92
+    "sshd_banned_count": 2,
+    "aggregate_ban_event_count": 2
   },
-  "listening_services": [
-    { "proto": "tcp", "local": "0.0.0.0:22", "process": "sshd" },
-    { "proto": "tcp", "local": "0.0.0.0:443", "process": "nginx" }
-  ],
+  "sshd_effective_config": {
+    "effective_values": {
+      "PermitRootLogin": "no",
+      "PasswordAuthentication": "no",
+      "KbdInteractiveAuthentication": "no",
+      "PubkeyAuthentication": "yes",
+      "MaxAuthTries": "3",
+      "LoginGraceTime": "30",
+      "X11Forwarding": "no",
+      "AllowUsers": ["deployer"]
+    },
+    "value_sources": {
+      "PermitRootLogin": "10-hardening.conf",
+      "PasswordAuthentication": "10-hardening.conf",
+      "KbdInteractiveAuthentication": "10-hardening.conf",
+      "PubkeyAuthentication": "sshd_config",
+      "MaxAuthTries": "10-hardening.conf",
+      "LoginGraceTime": "10-hardening.conf",
+      "X11Forwarding": "sshd_config",
+      "AllowUsers": "20-access.conf"
+    },
+    "drop_in_order": ["10-hardening.conf", "20-access.conf"]
+  },
+  "listening_services": {
+    "public_bind_count": 2,
+    "loopback_bind_count": 1,
+    "public_services": [
+      { "proto": "tcp", "local": "public:22", "process": "sshd" },
+      { "proto": "udp", "local": "public:5353", "process": "avahi-daemon" }
+    ],
+    "loopback_services": [
+      { "proto": "tcp", "local": "loopback:5432", "process": "postgres" }
+    ],
+    "desktop_profile_observations": [
+      { "process": "avahi-daemon", "observation": "mDNS responder" }
+    ]
+  },
+  "firewall_posture": {
+    "summary": "fail2ban_only",
+    "inbound_default_deny": false,
+    "base_firewall_detected": false,
+    "fail2ban_only": true,
+    "docker_managed_rules_present": true,
+    "ufw_enabled": false,
+    "nftables_rules_present": true,
+    "iptables_rules_present": true
+  },
+  "privileged_groups": {
+    "collector_user_groups": ["owner", "sudo"],
+    "root_equivalent_groups": ["sudo"]
+  },
   "findings": [
     {
-      "severity": "info",
-      "title": "High-volume SSH brute-force noise",
-      "evidence": "Large number of failed and invalid-user attempts; no accepted login correlated with the top attacking IPs in this sanitized example.",
-      "recommendation": "Continue fail2ban monitoring; consider provider firewall restrictions if feasible."
+      "severity": "low",
+      "title": "Desktop-oriented services are present on a VPS profile",
+      "evidence": "Detected services typically associated with workstation installs.",
+      "recommendation": "Review whether mDNS, printing, or wireless services should remain installed on this host."
+    },
+    {
+      "severity": "low",
+      "title": "Firewall posture appears to rely on fail2ban without a base inbound policy",
+      "evidence": "No default-deny base firewall was detected outside container-managed rules.",
+      "recommendation": "Consider a host or provider-level inbound allowlist/deny policy in addition to fail2ban."
     }
   ]
 }

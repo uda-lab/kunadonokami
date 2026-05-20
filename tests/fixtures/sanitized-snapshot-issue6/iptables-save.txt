@@ -1,0 +1,8 @@
+# command: sudo iptables-save
+# date_utc: 2026-05-20T00:00:00Z
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT

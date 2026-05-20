@@ -1,0 +1,6 @@
+# command: sudo fail2ban-client status
+# date_utc: 2026-05-20T00:00:00Z
+
+Status
+|- Number of jail: 1
+`- Jail list: sshd

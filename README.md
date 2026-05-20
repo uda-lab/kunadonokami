@@ -78,6 +78,12 @@ The LLM is not the detector of first resort.
 
 Deterministic tools should extract, normalize, and reduce events first. The LLM should only perform higher-level interpretation, prioritisation, and report writing.
 
+To build a reduced summary for an extracted snapshot:
+
+```bash
+scripts/reduce-security-snapshot.py security-snapshot-example
+```
+
 ## Status
 
 Initial scaffold. The current implementation is intentionally minimal.

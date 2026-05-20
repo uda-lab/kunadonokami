@@ -1,0 +1,5 @@
+# command: systemctl list-units --type=service --state=running --no-pager
+# date_utc: 2026-05-20T00:00:00Z
+
+ssh.service loaded active running OpenBSD Secure Shell server
+fail2ban.service loaded active running Fail2Ban Service

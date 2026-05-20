@@ -1,0 +1,4 @@
+# command: sudo ufw status verbose
+# date_utc: 2026-05-20T00:00:00Z
+
+__KUNADONOKAMI_MISSING_TOOL__: ufw

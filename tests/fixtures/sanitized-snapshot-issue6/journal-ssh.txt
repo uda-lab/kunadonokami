@@ -1,0 +1,4 @@
+# command: sudo journalctl -u ssh --since 7 days ago --no-pager --output short-iso --utc
+# date_utc: 2026-05-20T00:00:00Z
+
+-- No entries --

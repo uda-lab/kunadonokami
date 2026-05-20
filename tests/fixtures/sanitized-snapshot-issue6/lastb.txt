@@ -1,0 +1,4 @@
+# command: sudo bash -lc lastb -a | head -200
+# date_utc: 2026-05-20T00:00:00Z
+
+bash: line 1: lastb: command not found

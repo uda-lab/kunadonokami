@@ -24,9 +24,12 @@ A snapshot directory containing some or all of:
 - `systemctl-failed.txt`
 - `systemctl-running.txt`
 - `sshd_config.txt`
+- `sshd_config_d_ls.txt`
 - `sshd_config_d.txt`
 - `last.txt`
 - `lastb.txt`
+- `wtmpdb-last.txt`
+- `lslogins-failed.txt`
 - `reduced-security-summary.json`
 
 ## Hard rules
@@ -47,11 +50,13 @@ A snapshot directory containing some or all of:
 3. Summarise snapshot scope and time range.
 4. Review SSH events:
    - accepted logins,
+   - accepted-login sources that overlap the fail2ban banned set,
    - failed valid-user attempts,
    - invalid-user attempts,
    - repeated source IPs,
    - unusual usernames,
-   - disconnect/preauth noise.
+   - disconnect/preauth noise,
+   - key-exchange and protocol errors.
 5. Review fail2ban state:
    - active jails,
    - banned IP count,
@@ -59,15 +64,26 @@ A snapshot directory containing some or all of:
    - possible missing jails.
 6. Review exposed services from `ss-listening.txt`.
 7. Review failed systemd units.
-8. Review SSH hardening:
+8. Review SSH hardening using the effective config across `sshd_config.txt`
+   and `sshd_config.d/*.conf`:
    - `PermitRootLogin no`,
    - `PasswordAuthentication no`,
    - `KbdInteractiveAuthentication no`,
    - `PubkeyAuthentication yes`,
    - `AllowUsers` if feasible,
    - `MaxAuthTries`,
+   - `LoginGraceTime`,
    - `X11Forwarding no`.
-9. Produce a concise report.
+   Respect OpenSSH first-match-wins semantics and use `sshd_config_d_ls.txt`
+   ordering when present.
+9. Review exposed services for a VPS profile:
+   - separate public binds from loopback-only services,
+   - treat mDNS, printing, and wireless services as hardening observations,
+     not compromise evidence by themselves.
+10. Review privilege-equivalent group membership:
+   - accounts in `sudo`, `docker`, or similar groups are effectively
+     privileged even if they are not named `root`.
+11. Produce a concise report.
 
 ## Output format
 
@@ -92,6 +108,7 @@ Summarise brute-force and `[preauth]` activity without overemphasising it.
 ### Manual checks for owner
 
 List exact read-only commands the owner may run manually.
+If no manual checks are needed, say so explicitly.
 
 ### Suggested next actions
 

@@ -1,0 +1,4 @@
+# command: sudo bash -o pipefail -lc last -a | head -200
+# date_utc: 2026-05-20T00:00:00Z
+
+__KUNADONOKAMI_MISSING_TOOL__: last

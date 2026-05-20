@@ -1,0 +1,4 @@
+# command: sudo bash -o pipefail -lc find /etc/systemd/system -maxdepth 2 -type f -printf %TY-%Tm-%Td %TH:%TM %p\n | sort
+# date_utc: 2026-05-20T00:00:00Z
+
+2026-05-18 00:00 /etc/systemd/system/ssh.service.d/override.conf

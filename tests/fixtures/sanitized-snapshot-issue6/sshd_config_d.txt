@@ -1,0 +1,10 @@
+# file: /etc/ssh/sshd_config.d/10-hardening.conf
+PasswordAuthentication no
+PermitRootLogin no
+KbdInteractiveAuthentication no
+MaxAuthTries 3
+LoginGraceTime 30
+
+# file: /etc/ssh/sshd_config.d/20-access.conf
+PasswordAuthentication yes
+AllowUsers deployer

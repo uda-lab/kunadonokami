@@ -1,0 +1,13 @@
+# command: sudo nft list ruleset
+# date_utc: 2026-05-20T00:00:00Z
+
+table inet filter {
+  chain f2b-sshd {
+    tcp dport 22 reject
+  }
+}
+table ip docker-bridges {
+  chain docker-forward {
+    type filter hook forward priority 0;
+  }
+}

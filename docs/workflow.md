@@ -27,6 +27,12 @@ collection; prefer a reviewed local copy or pinned release artifact.
 
 Reducers should convert raw logs into compact structured artifacts.
 
+Primary reducer entrypoint:
+
+```bash
+scripts/reduce-security-snapshot.py security-snapshot-example
+```
+
 Examples:
 
 * count failed SSH attempts,
@@ -35,7 +41,8 @@ Examples:
 * identify usernames targeted by attackers,
 * summarise fail2ban state,
 * summarise listening services,
-* flag weak SSH configuration.
+* flag weak SSH configuration,
+* classify collection health and expected optional-tool absence.
 
 ## Stage 4: AI-assisted review
 

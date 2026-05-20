@@ -37,10 +37,23 @@ The main target artifact is:
 reduced-security-summary.json
 ```
 
+Current entrypoint:
+
+```text
+scripts/reduce-security-snapshot.py <snapshot-dir>
+```
+
+Current reducer coverage:
+
+- collection health classification,
+- SSH activity summary with journal de-duplication,
+- effective `sshd_config` review across drop-ins,
+- fail2ban summary,
+- listening-service and firewall-posture summary,
+- privileged-group hints from collector metadata.
+
 ## Future reducer candidates
 
-* `parse_ssh_logs.py`
-* `reduce_fail2ban.py`
-* `parse_ss_listening.py`
-* `review_sshd_config.py`
-* `merge_summary.py`
+* normalized SSH event export
+* package/update posture reducer
+* filesystem persistence anomaly reducer

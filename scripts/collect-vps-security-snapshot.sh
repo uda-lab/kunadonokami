@@ -91,7 +91,7 @@ write_cmd() {
     echo "# command: $*"
     echo "# date_utc: $(utc_now)"
     echo
-    "$@"
+    env LC_ALL=C TZ=UTC "$@"
   } >"$OUT/$name" 2>&1 || rc=$?
   record_status "$name" "$rc"
 }
@@ -104,7 +104,7 @@ write_sudo_cmd() {
     echo "# command: sudo $*"
     echo "# date_utc: $(utc_now)"
     echo
-    sudo "$@"
+    sudo env LC_ALL=C TZ=UTC "$@"
   } >"$OUT/$name" 2>&1 || rc=$?
   record_status "$name" "$rc"
 }
@@ -112,7 +112,20 @@ write_sudo_cmd() {
 write_sudo_file() {
   local name="$1" path="$2"
   local rc=0
-  sudo cat "$path" >"$OUT/$name" 2>&1 || rc=$?
+  sudo env LC_ALL=C TZ=UTC cat "$path" >"$OUT/$name" 2>&1 || rc=$?
+  record_status "$name" "$rc"
+}
+
+write_sudo_shell_cmd() {
+  local name="$1" required_cmd="$2" shell_body="$3"
+  local rc=0
+  {
+    echo "# command: sudo bash -o pipefail -lc $shell_body"
+    echo "# date_utc: $(utc_now)"
+    echo
+    sudo env LC_ALL=C TZ=UTC bash -o pipefail -lc \
+      "command -v \"$required_cmd\" >/dev/null 2>&1 || { echo \"__KUNADONOKAMI_MISSING_TOOL__: $required_cmd\"; exit 127; }; $shell_body"
+  } >"$OUT/$name" 2>&1 || rc=$?
   record_status "$name" "$rc"
 }
 
@@ -127,8 +140,8 @@ write_sudo_file() {
 # SSH logs. Different distributions use either ssh or sshd as the unit name.
 # Note: both units may be present on the same system and will contain duplicate
 # events; reducers should de-duplicate by timestamp and message before analysis.
-write_sudo_cmd journal-ssh.txt journalctl -u ssh --since "7 days ago" --no-pager
-write_sudo_cmd journal-sshd.txt journalctl -u sshd --since "7 days ago" --no-pager
+write_sudo_cmd journal-ssh.txt journalctl -u ssh --since "7 days ago" --no-pager --output short-iso --utc
+write_sudo_cmd journal-sshd.txt journalctl -u sshd --since "7 days ago" --no-pager --output short-iso --utc
 
 # Debian/Ubuntu auth log: opt-in only (--include-raw-auth-log) because copying
 # the whole file can be broad. By default collect a bounded recent slice instead.
@@ -136,7 +149,7 @@ if [ "$INCLUDE_RAW_AUTH_LOG" -eq 1 ]; then
   write_sudo_file auth.log.txt /var/log/auth.log
 else
   write_sudo_cmd auth.log.txt journalctl --identifier sshd --identifier sudo \
-    --since "7 days ago" --no-pager
+    --identifier sshd-session --since "7 days ago" --no-pager --output short-iso --utc
 fi
 
 # fail2ban state.
@@ -162,19 +175,33 @@ write_cmd systemctl-running.txt systemctl list-units --type=service --state=runn
 write_sudo_file sshd_config.txt /etc/ssh/sshd_config
 _rc=0; sudo sh -c 'ls -la /etc/ssh/sshd_config.d 2>/dev/null' >"$OUT/sshd_config_d_ls.txt" 2>&1 || _rc=$?
 record_status "sshd_config_d_ls.txt" "$_rc"
-_rc=0; sudo sh -c 'cat /etc/ssh/sshd_config.d/*.conf 2>/dev/null' >"$OUT/sshd_config_d.txt" 2>&1 || _rc=$?
+_rc=0
+sudo env LC_ALL=C TZ=UTC bash -o pipefail -lc '
+shopt -s nullglob
+files=(/etc/ssh/sshd_config.d/*.conf)
+if ((${#files[@]} == 0)); then
+  exit 0
+fi
+for file in "${files[@]}"; do
+  echo "# file: $file"
+  cat "$file"
+  echo
+done
+' >"$OUT/sshd_config_d.txt" 2>&1 || _rc=$?
 record_status "sshd_config_d.txt" "$_rc"
 
 # Basic login history.
-write_cmd last.txt bash -lc 'last -a | head -200'
-write_sudo_cmd lastb.txt bash -lc 'lastb -a | head -200'
+write_sudo_shell_cmd last.txt last 'last -a | head -200'
+write_sudo_shell_cmd lastb.txt lastb 'lastb -a | head -200'
+write_sudo_shell_cmd wtmpdb-last.txt wtmpdb 'wtmpdb last -R -n 200 --time-format iso'
+write_sudo_shell_cmd lslogins-failed.txt lslogins 'lslogins --failed'
 
 # Basic account hints. Avoid dumping secrets.
 write_sudo_cmd passwd-users.txt awk -F: '{ print $1 ":" $3 ":" $7 }' /etc/passwd
 
 # Integrity-relevant writable locations, shallow only.
-write_sudo_cmd cron-ls.txt bash -lc 'ls -la /etc/cron* 2>/dev/null'
-write_sudo_cmd systemd-etc-ls.txt bash -lc 'find /etc/systemd/system -maxdepth 2 -type f -printf "%TY-%Tm-%Td %TH:%TM %p\n" 2>/dev/null | sort'
+write_sudo_shell_cmd cron-ls.txt ls 'ls -la /etc/cron* 2>/dev/null'
+write_sudo_shell_cmd systemd-etc-ls.txt find 'find /etc/systemd/system -maxdepth 2 -type f -printf "%TY-%Tm-%Td %TH:%TM %p\n" 2>/dev/null | sort'
 
 # Archive.
 OUT_PARENT="$(dirname "$OUT")"

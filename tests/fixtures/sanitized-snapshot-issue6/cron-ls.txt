@@ -1,0 +1,4 @@
+# command: sudo bash -o pipefail -lc ls -la /etc/cron*
+# date_utc: 2026-05-20T00:00:00Z
+
+drwxr-xr-x 2 root root 64 May 18 00:00 /etc/cron.d

@@ -1,0 +1,10 @@
+# command: sudo fail2ban-client status sshd
+# date_utc: 2026-05-20T00:00:00Z
+
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 5
+|  `- Total failed: 7
+`- Actions
+   |- Currently banned: 2
+   `- Banned IP list: source-a.example.invalid source-z.example.invalid

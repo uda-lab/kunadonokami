@@ -1,0 +1,4 @@
+# command: sudo bash -o pipefail -lc wtmpdb last -R -n 200 --time-format iso
+# date_utc: 2026-05-20T00:00:00Z
+
+deployer pts/0 2026-05-18T00:00:01 2026-05-18T00:30:00

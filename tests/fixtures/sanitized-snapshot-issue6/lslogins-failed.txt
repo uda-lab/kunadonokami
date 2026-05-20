@@ -1,0 +1,5 @@
+# command: sudo bash -o pipefail -lc lslogins --failed
+# date_utc: 2026-05-20T00:00:00Z
+
+UID USER LATEST-LOGIN-FROM
+0 root source-e.example.invalid

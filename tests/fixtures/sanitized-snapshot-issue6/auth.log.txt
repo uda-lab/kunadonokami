@@ -1,0 +1,5 @@
+# command: sudo journalctl --identifier sshd --identifier sudo --identifier sshd-session --since 7 days ago --no-pager --output short-iso --utc
+# date_utc: 2026-05-20T00:00:00Z
+
+2026-05-18T00:00:01+0000 sanitized-host sshd-session[1001]: Accepted publickey for deployer from source-a.example.invalid port 50100 ssh2: ED25519
+2026-05-18T00:00:06+0000 sanitized-host sshd-session[1006]: pam_unix(sshd:auth): authentication failure; rhost=source-e.example.invalid user=root

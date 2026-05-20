@@ -1,0 +1,4 @@
+# command: systemctl --failed
+# date_utc: 2026-05-20T00:00:00Z
+
+0 loaded units listed.

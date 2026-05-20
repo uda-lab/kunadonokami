@@ -1,0 +1,5 @@
+host=sanitized-host
+date_utc=2026-05-20T00:00:00Z
+kernel=Linux sanitized-host 6.1.0 test
+collector_user=uid=1000(agent) gid=1000(agent) groups=1000(agent),27(sudo),999(docker)
+snapshot_version=1

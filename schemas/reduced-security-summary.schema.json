@@ -3,15 +3,114 @@
   "$id": "https://example.invalid/kunadonokami/reduced-security-summary.schema.json",
   "title": "Reduced Security Summary",
   "type": "object",
-  "required": ["snapshot", "ssh", "findings"],
+  "required": ["snapshot", "collection_health", "ssh_summary", "findings"],
   "properties": {
     "snapshot": {
       "type": "object",
       "properties": {
         "host": { "type": "string" },
         "date_utc": { "type": "string" },
-        "time_range": { "type": "string" }
+        "time_range": { "type": "string" },
+        "snapshot_version": { "type": "string" }
       }
+    },
+    "collection_health": {
+      "type": "object",
+      "required": ["artifacts", "classification_counts"],
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "required", "present", "classification", "reason"],
+            "properties": {
+              "name": { "type": "string" },
+              "required": { "type": "boolean" },
+              "present": { "type": "boolean" },
+              "exit_code": { "type": ["integer", "null"] },
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "missing_optional_tool",
+                  "unexpected_failure",
+                  "empty_expected",
+                  "unusable_artifact"
+                ]
+              },
+              "reason": { "type": "string" },
+              "wrapper_exit_mismatch": { "type": "boolean" },
+              "missing_tool": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "classification_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    },
+    "ssh_summary": {
+      "type": "object",
+      "properties": {
+        "source_artifacts_used": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "deduplicated_event_count": { "type": "integer" },
+        "accepted_login_count": { "type": "integer" },
+        "accepted_login_methods": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/countByKey" }
+        },
+        "accepted_login_key_types": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/countByKey" }
+        },
+        "accepted_logins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["timestamp", "identifier", "method", "username", "source", "port"],
+            "properties": {
+              "timestamp": { "type": "string" },
+              "identifier": { "type": "string" },
+              "method": { "type": "string" },
+              "username": { "type": "string" },
+              "source": { "type": "string" },
+              "port": { "type": "string" },
+              "key_type": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "failed_auth_count": { "type": "integer" },
+        "invalid_user_count": { "type": "integer" },
+        "root_auth_attempt_count": { "type": "integer" },
+        "preauth_disconnect_count": { "type": "integer" },
+        "protocol_error_count": { "type": "integer" },
+        "unique_source_address_count": { "type": "integer" },
+        "top_source_addresses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/countByKey" }
+        },
+        "top_targeted_usernames": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/countByKey" }
+        },
+        "accepted_login_sources_overlapping_fail2ban_bans": {
+          "type": "object",
+          "properties": {
+            "count": { "type": "integer" },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
     },
     "ssh": {
       "type": "object",
@@ -23,11 +122,11 @@
         "unique_source_ip_count": { "type": "integer" },
         "top_usernames": {
           "type": "array",
-          "items": { "type": "object" }
+          "items": { "$ref": "#/$defs/countByKey" }
         },
         "top_source_ips": {
           "type": "array",
-          "items": { "type": "object" }
+          "items": { "$ref": "#/$defs/countByKey" }
         }
       }
     },
@@ -42,9 +141,61 @@
         "sshd_banned_count": { "type": "integer" }
       }
     },
+    "sshd_effective_config": {
+      "type": "object",
+      "properties": {
+        "effective_values": { "type": "object" },
+        "value_sources": { "type": "object" },
+        "drop_in_order": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "listening_services": {
-      "type": "array",
-      "items": { "type": "object" }
+      "type": "object",
+      "properties": {
+        "public_bind_count": { "type": "integer" },
+        "loopback_bind_count": { "type": "integer" },
+        "public_services": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "loopback_services": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "desktop_profile_observations": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "firewall_posture": {
+      "type": "object",
+      "properties": {
+        "summary": { "type": "string" },
+        "inbound_default_deny": { "type": "boolean" },
+        "base_firewall_detected": { "type": "boolean" },
+        "fail2ban_only": { "type": "boolean" },
+        "docker_managed_rules_present": { "type": "boolean" },
+        "ufw_enabled": { "type": "boolean" },
+        "nftables_rules_present": { "type": "boolean" },
+        "iptables_rules_present": { "type": "boolean" }
+      }
+    },
+    "privileged_groups": {
+      "type": "object",
+      "properties": {
+        "collector_user_groups": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "root_equivalent_groups": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
     },
     "findings": {
       "type": "array",
@@ -60,6 +211,19 @@
           "evidence": { "type": "string" },
           "recommendation": { "type": "string" }
         }
+      }
+    }
+  },
+  "$defs": {
+    "countByKey": {
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer" }
+      },
+      "required": ["count"],
+      "minProperties": 2,
+      "additionalProperties": {
+        "type": ["string", "integer"]
       }
     }
   },

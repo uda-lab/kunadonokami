@@ -14,7 +14,11 @@
     },
     "service": {
       "type": "string",
-      "enum": ["ssh", "sshd", "unknown"]
+      "enum": ["ssh", "sshd", "sshd-session", "unknown"]
+    },
+    "identifier": {
+      "type": "string",
+      "description": "Original syslog or journald identifier, such as sshd or sshd-session."
     },
     "event_type": {
       "type": "string",
@@ -24,6 +28,7 @@
         "invalid_user",
         "disconnect_preauth",
         "auth_failure",
+        "protocol_error",
         "session_opened",
         "session_closed",
         "other"
@@ -41,6 +46,9 @@
       "additionalProperties": true
     },
     "auth_method": {
+      "type": "string"
+    },
+    "key_type": {
       "type": "string"
     },
     "raw_excerpt": {
